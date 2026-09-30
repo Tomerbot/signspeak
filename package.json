@@ -1,0 +1,12 @@
+{
+  "name": "signspeak",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Learn and use your first 10 ASL signs with an AI that watches your hands, in the browser.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "test": "node tests/run.js"
+  }
+}

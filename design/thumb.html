@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SignSpeak thumbnail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --mist:#E6F0EE; --card:#FFFFFF; --ink:#0C3440; --sea:#0F7F74; --hand:#FFC83D; --line:#BFD3CF; }
+  html, body { margin: 0; width: 1200px; height: 800px; overflow: hidden; }
+  body {
+    background: var(--mist); color: var(--ink);
+    font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+    display: grid; grid-template-columns: 600px 1fr; gap: 44px; align-items: center;
+    padding: 0 64px 0 72px; box-sizing: border-box;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; font-weight: 800; font-size: 34px; letter-spacing: -0.01em; }
+  .brand svg { width: 56px; height: 56px; }
+  h1 { margin: 34px 0 22px; font-size: 68px; line-height: 1.02; font-weight: 800; letter-spacing: -0.025em; }
+  p { margin: 0; font-size: 27px; line-height: 1.35; max-width: 20em; }
+  .params { display: flex; gap: 12px; margin-top: 34px; }
+  .param { padding: 12px 18px; border: 2.5px solid var(--ink); border-radius: 14px; background: var(--hand); font-weight: 800; font-size: 22px; }
+  .mirror { position: relative; height: 640px; border-radius: 28px; background: #164653; overflow: hidden; }
+  .mirror .hand { position: absolute; inset: 80px 28px 20px; display: grid; place-items: end center; }
+  .mirror .hand svg { width: 100%; height: 100%; }
+  .seeing { position: absolute; top: 20px; left: 20px; padding: 8px 18px 8px 14px; border-radius: 999px; background: rgba(12,52,64,.85); color: #fff; font-weight: 600; font-size: 21px; }
+  .seeing::before { content: ''; display: inline-block; width: 13px; height: 13px; margin-right: 10px; border-radius: 50%; background: var(--hand); }
+  .caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 24px 30px 28px; background: var(--ink); color: #fff; font-weight: 800; font-size: 60px; line-height: 1; letter-spacing: -0.015em; }
+  .caption mark { background: none; color: var(--hand); }
+</style>
+</head>
+<body>
+  <div>
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="16" fill="#0C3440"/>
+        <g stroke="#fff" stroke-linecap="round" fill="none">
+          <path d="M23.6 36 L22.8 13.2" stroke-width="5"/>
+          <path d="M29.8 36 L29.8 10.2" stroke-width="5"/>
+          <path d="M36 36 L36.8 12.2" stroke-width="5"/>
+          <path d="M42.1 36 L43.2 17.8" stroke-width="4.6"/>
+          <path d="M26.5 43 L13.8 30.4" stroke-width="6.4"/>
+        </g>
+        <rect x="19.5" y="27.5" width="25.8" height="19.5" rx="9" fill="#fff"/>
+        <rect x="11" y="51.5" width="42" height="6.5" rx="3.25" fill="#FFC83D"/>
+      </svg>
+      SignSpeak
+    </div>
+    <h1>Sign a word.<br>Hear it out loud.</h1>
+    <p>Learn your first 10 signs in American Sign Language with an AI that watches your hand.</p>
+    <div class="params"><span class="param">Handshape ✓</span><span class="param">Place ✓</span><span class="param">Movement ✓</span></div>
+  </div>
+  <div class="mirror">
+    <div class="hand" id="hand"></div>
+    <div class="seeing">I see: I-love-you hand</div>
+    <div class="caption"><mark>I love you</mark></div>
+  </div>
+  <script type="module">
+    import { handSVG } from '../js/illustrate.js';
+    document.getElementById('hand').innerHTML = handSVG('ILY', { skeleton: true, title: 'I-love-you handshape' });
+  </script>
+</body>
+</html>

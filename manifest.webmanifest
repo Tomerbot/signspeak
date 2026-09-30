@@ -1,0 +1,13 @@
+{
+  "name": "SignSpeak",
+  "short_name": "SignSpeak",
+  "description": "Learn and use your first 10 ASL signs with an AI that watches your hand.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#E6F0EE",
+  "theme_color": "#0C3440",
+  "icons": [
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

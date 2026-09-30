@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SignSpeak</title>
+  <meta name="description" content="Learn and use your first 10 signs in American Sign Language. An AI in your browser watches your hand, shows the words as captions and says them out loud.">
+  <meta name="theme-color" content="#0C3440">
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <a class="brand" href="./" aria-label="SignSpeak home">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="16" fill="#0C3440"/>
+        <g stroke="#fff" stroke-linecap="round" fill="none">
+      <path d="M23.6 36 L22.8 13.2" stroke-width="5"/>
+      <path d="M29.8 36 L29.8 10.2" stroke-width="5"/>
+      <path d="M36 36 L36.8 12.2" stroke-width="5"/>
+      <path d="M42.1 36 L43.2 17.8" stroke-width="4.6"/>
+      <path d="M26.5 43 L13.8 30.4" stroke-width="6.4"/>
+    </g>
+    <rect x="19.5" y="27.5" width="25.8" height="19.5" rx="9" fill="#fff"/>
+    <rect x="11" y="51.5" width="42" height="6.5" rx="3.25" fill="#FFC83D"/>
+      </svg>
+      <span>SignSpeak</span>
+    </a>
+    <nav class="modes" aria-label="Mode">
+      <button class="mode" type="button" data-mode="talk" aria-pressed="true">Talk</button>
+      <button class="mode" type="button" data-mode="practice" aria-pressed="false">Practice</button>
+    </nav>
+    <button class="link-btn" type="button" id="aboutBtn">About</button>
+  </header>
+
+  <main class="stage">
+    <section class="mirror-col">
+      <div class="mirror off" id="mirror">
+        <video id="video" playsinline muted></video>
+        <canvas id="overlay"></canvas>
+        <p class="seeing" id="seeing" hidden></p>
+        <div class="caption" id="caption" aria-live="polite" hidden></div>
+
+        <div class="gate" id="gate">
+          <div class="gate-text">
+            <h1>Sign a word.<br>Hear it out loud.</h1>
+            <p>SignSpeak watches your hand through the camera and knows 10 signs in American Sign Language
+              (ASL). Practice mode teaches you each one.</p>
+            <button class="btn primary big" type="button" id="startBtn">Turn on camera</button>
+            <p class="fine">The video stays on this device. Nothing is recorded or uploaded.</p>
+            <p class="gate-error" id="gateError" role="alert" hidden></p>
+          </div>
+          <div class="caption sample" aria-hidden="true">Hello <mark>thank you</mark></div>
+        </div>
+      </div>
+      <p class="tip" id="tip">Works best in good light, with one hand up and your face in the picture.</p>
+      <div class="debug" id="debug" hidden></div>
+    </section>
+
+    <section class="panel" id="talkPanel" aria-labelledby="wordsTitle">
+      <h2 id="wordsTitle">Your words</h2>
+      <p class="sentence empty" id="sentence">Sign something. Your words show up here.</p>
+      <div class="actions">
+        <button class="btn primary" type="button" id="speakBtn">Speak</button>
+        <button class="btn" type="button" id="undoBtn">Undo</button>
+        <button class="btn" type="button" id="clearBtn">Clear</button>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="autoSpeak" checked>
+        <span class="track" aria-hidden="true"></span>
+        <span>Say each sign out loud</span>
+      </label>
+
+      <h2 class="list-title">The 10 signs</h2>
+      <p class="list-note">Tap a sign to learn it.</p>
+      <ul class="sign-list" id="signList"></ul>
+    </section>
+
+    <section class="panel" id="practicePanel" aria-labelledby="lessonWord" hidden>
+      <div class="lesson-head">
+        <button class="round-btn" type="button" id="prevBtn" aria-label="Previous sign">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 L8 12 L15 19"/></svg>
+        </button>
+        <div class="lesson-title">
+          <h2 id="lessonWord">Hello</h2>
+          <p id="lessonCount">Sign 1 of 10</p>
+        </div>
+        <button class="round-btn" type="button" id="nextBtn" aria-label="Next sign">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5 L16 12 L9 19"/></svg>
+        </button>
+      </div>
+
+      <div class="params" id="params">
+        <figure class="param" id="pShape">
+          <div class="art"></div>
+          <figcaption><strong>Handshape</strong><span class="how"></span></figcaption>
+        </figure>
+        <figure class="param" id="pPlace">
+          <div class="art"></div>
+          <figcaption><strong>Place</strong><span class="how"></span></figcaption>
+        </figure>
+        <figure class="param" id="pMove">
+          <div class="art"></div>
+          <figcaption><strong>Movement</strong><span class="how"></span></figcaption>
+          <div class="meter" aria-hidden="true"><span></span></div>
+        </figure>
+      </div>
+
+      <p class="hint" id="hint" aria-live="polite">Turn on the camera to start.</p>
+
+      <div class="reps" id="reps">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="reps-text" id="repsText">Sign it 3 times to learn it</span>
+      </div>
+
+      <h3 class="picker-title">All signs <span id="learnedCount"></span></h3>
+      <div class="picker" id="picker"></div>
+    </section>
+  </main>
+
+  <dialog class="about" id="about" aria-labelledby="aboutTitle">
+    <form method="dialog">
+      <button class="round-btn close" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>
+      </button>
+    </form>
+    <h2 id="aboutTitle">About SignSpeak</h2>
+    <p>SignSpeak helps hearing people take their first steps in American Sign Language (ASL), so it's a
+      little easier to say hello to a Deaf classmate, neighbor or family member.</p>
+    <h3>How it works</h3>
+    <p>Google's MediaPipe AI finds 21 points on your hand and 6 points on your face in every camera frame.
+      SignSpeak then checks the three parts that make up a sign: the <strong>handshape</strong>, the
+      <strong>place</strong> (compared with your face) and the <strong>movement</strong> over the last
+      second.</p>
+    <h3>Private</h3>
+    <p>Everything runs inside your browser. The video is never recorded or uploaded, and there is no account.</p>
+    <h3>What it can't do</h3>
+    <p>SignSpeak knows 10 one-handed signs. Real ASL is a full language with its own grammar, facial
+      expressions and two-handed signs, and it's different from other sign languages (Israeli Sign Language
+      has different signs). SignSpeak is a first step, not a translator. To really learn ASL, learn from Deaf
+      teachers, for example at <a href="https://www.lifeprint.com/" target="_blank" rel="noopener">Lifeprint (ASL University)</a>.</p>
+    <h3>Credits</h3>
+    <p>Hand and face tracking by <a href="https://ai.google.dev/edge/mediapipe/solutions/guide" target="_blank" rel="noopener">MediaPipe</a>.
+      Typeface: Atkinson Hyperlegible Next by the Braille Institute. Built with help from Claude, an AI assistant by Anthropic.</p>
+    <p><button class="link-btn" type="button" id="resetBtn">Reset practice progress</button></p>
+  </dialog>
+</body>
+</html>

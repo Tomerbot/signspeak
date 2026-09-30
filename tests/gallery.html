@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drawings check</title>
+<style>
+  :root { --ink:#0C3440; --card:#fff; --hand:#FFC83D; --mist:#E6F0EE; }
+  body { font-family: system-ui, sans-serif; background: var(--mist); color: var(--ink); margin: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+  figure { margin: 0; background: #fff; border: 1px solid #BFD3CF; border-radius: 12px; padding: 10px; width: 150px; text-align: center; }
+  figure svg { width: 130px; height: 130px; }
+  figcaption { font-size: 14px; }
+</style>
+</head>
+<body>
+<h1>Handshapes</h1><div class="row" id="hands"></div>
+<h1>Places</h1><div class="row" id="places"></div>
+<h1>Movements</h1><div class="row" id="moves"></div>
+<script type="module">
+  import { handSVG, placeSVG, moveSVG } from '../js/illustrate.js';
+  const fig = (svg, cap) => `<figure>${svg}<figcaption>${cap}</figcaption></figure>`;
+  document.getElementById('hands').innerHTML = ['B','FIVE','S','A','ILY','FLAT_O','TWO'].map(p => fig(handSVG(p), p)).join('');
+  document.getElementById('places').innerHTML = [['forehead',false],['forehead',true],['chin'],['mouth'],['chest'],['any']].map(([w,s]) => fig(placeSVG(w,{side:s}), w + (s?' side':''))).join('');
+  document.getElementById('moves').innerHTML = ['away','downOut','nod','snap','circle','hold','touch'].map(m => fig(moveSVG(m), m)).join('');
+</script>
+</body>
+</html>

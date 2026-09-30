@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SignSpeak icon</title>
+<style>
+  html, body { margin: 0; width: 1024px; height: 1024px; overflow: hidden; background: transparent; }
+  svg { display: block; width: 1024px; height: 1024px; }
+</style>
+</head>
+<body>
+<!-- ?variant=rounded (favicon, README), full (app icon, full bleed), maskable (safe zone), transparent (no background) -->
+<svg id="icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect id="bg" width="64" height="64" rx="16" fill="#0C3440"/>
+  <g id="mark">
+    <g stroke="#FFFFFF" stroke-linecap="round" fill="none" id="fingers">
+      <path d="M23.6 36 L22.8 13.2" stroke-width="5"/>
+      <path d="M29.8 36 L29.8 10.2" stroke-width="5"/>
+      <path d="M36 36 L36.8 12.2" stroke-width="5"/>
+      <path d="M42.1 36 L43.2 17.8" stroke-width="4.6"/>
+      <path d="M26.5 43 L13.8 30.4" stroke-width="6.4"/>
+    </g>
+    <rect id="palm" x="19.5" y="27.5" width="25.8" height="19.5" rx="9" fill="#FFFFFF"/>
+    <rect x="11" y="51.5" width="42" height="6.5" rx="3.25" fill="#FFC83D"/>
+  </g>
+</svg>
+<script>
+  const v = new URLSearchParams(location.search).get('variant') || 'rounded';
+  const bg = document.getElementById('bg');
+  const mark = document.getElementById('mark');
+  if (v === 'full') bg.setAttribute('rx', '0');
+  if (v === 'maskable') { bg.setAttribute('rx', '0'); mark.setAttribute('transform', 'translate(6.4 6.4) scale(0.8)'); }
+  if (v === 'transparent') {
+    bg.remove();
+    document.querySelectorAll('#fingers path').forEach(p => p.setAttribute('stroke', '#0C3440'));
+    document.getElementById('palm').setAttribute('fill', '#0C3440');
+  }
+</script>
+</body>
+</html>

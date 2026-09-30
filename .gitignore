@@ -1,0 +1,14 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Videos and big exports stay out of the repo
+*.mp4
+*.mov
+*.webm
+node_modules/
+
+# Private notes (the email to the organizers)
+submission/EMAIL_ORGANIZERS.md

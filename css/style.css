@@ -1,0 +1,841 @@
+/* SignSpeak. See DESIGN.md for the idea behind these choices. */
+
+:root {
+  --mist: #e6f0ee;
+  --card: #ffffff;
+  --ink: #0c3440;
+  --ink-soft: #3f5f68;
+  --sea: #0f7f74;
+  --sea-dark: #0b665d;
+  --hand: #ffc83d;
+  --line: #bfd3cf;
+
+  --radius-big: 20px;
+  --radius: 14px;
+  --font: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--mist);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--sea-dark);
+  text-underline-offset: 3px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--hand);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--ink);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---- Top bar -------------------------------------------------------------- */
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 14px 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 21px;
+  letter-spacing: -0.01em;
+}
+
+.logo {
+  width: 36px;
+  height: 36px;
+  flex: none;
+}
+
+.modes {
+  display: flex;
+  margin: 0 auto;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+
+.mode {
+  min-width: 104px;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mode[aria-pressed='true'] {
+  background: var(--sea);
+  color: #fff;
+}
+
+.link-btn {
+  padding: 8px 4px;
+  border: 0;
+  background: none;
+  font-weight: 600;
+  color: var(--sea-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* ---- Layout --------------------------------------------------------------- */
+
+.stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(330px, 1fr);
+  gap: 24px;
+  align-items: start;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 4px 24px 40px;
+}
+
+/* ---- The mirror ------------------------------------------------------------ */
+
+.mirror-col {
+  position: sticky;
+  top: 12px;
+}
+
+.mirror {
+  --ratio: 4 / 3;
+  position: relative;
+  width: min(100%, calc((100dvh - 150px) * (var(--ratio))));
+  aspect-ratio: var(--ratio);
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: var(--radius-big);
+  background: var(--ink);
+}
+
+.mirror video,
+.mirror canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* a mirror, like copying a teacher */
+}
+
+.seeing {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  margin: 0;
+  padding: 6px 14px 6px 12px;
+  border-radius: 999px;
+  background: rgba(12, 52, 64, 0.82);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.seeing::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  vertical-align: 0;
+}
+
+.seeing.has-hand::before {
+  background: var(--hand);
+}
+
+/* The one loud thing: live captions under the mirror. */
+.caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 14px 22px 16px;
+  background: rgba(12, 52, 64, 0.9);
+  color: #fff;
+  font-size: clamp(30px, 4.4vw, 54px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.caption mark {
+  background: none;
+  color: var(--hand);
+}
+
+.caption.pop mark {
+  animation: pop 0.35s ease-out;
+  display: inline-block;
+}
+
+@keyframes pop {
+  from {
+    transform: translateY(8px);
+    opacity: 0.2;
+  }
+}
+
+/* Before the camera is on. */
+.gate {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(20px, 5%, 48px);
+  padding-bottom: 96px;
+  background: #164653; /* a little lighter than the caption band below it */
+  color: #fff;
+}
+
+.gate-text {
+  max-width: 34em;
+}
+
+.gate h1 {
+  font-size: clamp(30px, 4.6vw, 52px);
+  margin-bottom: 14px;
+}
+
+.gate p {
+  margin: 0 0 18px;
+  max-width: 32em;
+  color: #d7e6e3;
+}
+
+.gate .fine {
+  margin: 14px 0 0;
+  font-size: 15px;
+}
+
+.gate-error {
+  margin-top: 14px !important;
+  padding: 10px 14px;
+  border-left: 4px solid var(--hand);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff !important;
+}
+
+.caption.sample {
+  opacity: 0.95;
+}
+
+.tip {
+  margin: 10px 4px 0;
+  color: var(--ink-soft);
+  font-size: 15px;
+  text-align: center;
+}
+
+/* ---- Buttons ---------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: var(--ink);
+}
+
+.btn.primary {
+  border-color: var(--sea);
+  background: var(--sea);
+  color: #fff;
+}
+
+.btn.primary:hover {
+  background: var(--sea-dark);
+}
+
+.btn.big {
+  min-height: 52px;
+  padding: 0 26px;
+  font-size: 19px;
+}
+
+.gate .btn.primary {
+  border-color: var(--hand);
+  background: var(--hand);
+  color: var(--ink);
+}
+
+.gate .btn.primary:hover {
+  background: #ffd873;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.round-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border: 1.5px solid var(--line);
+  border-radius: 50%;
+  background: var(--card);
+  cursor: pointer;
+}
+
+.round-btn:hover {
+  border-color: var(--ink);
+}
+
+.round-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---- Panels ----------------------------------------------------------------- */
+
+.panel {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-big);
+  background: var(--card);
+}
+
+.panel h2 {
+  font-size: 21px;
+}
+
+/* Talk */
+.sentence {
+  min-height: 2.4em;
+  margin: 8px 0 16px;
+  font-size: 27px;
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.sentence.empty {
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.switch .track {
+  position: relative;
+  width: 46px;
+  height: 28px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--line);
+  transition: background 0.15s;
+}
+
+.switch .track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+
+.switch input:checked + .track {
+  background: var(--sea);
+}
+
+.switch input:checked + .track::after {
+  transform: translateX(18px);
+}
+
+.switch input:focus-visible + .track {
+  outline: 3px solid var(--hand);
+  outline-offset: 2px;
+}
+
+.list-title {
+  margin-top: 28px !important;
+}
+
+.list-note {
+  margin: 2px 0 8px;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+.sign-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sign-list li + li {
+  border-top: 1px solid var(--line);
+}
+
+.sign-row {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 8px 4px;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.sign-row:hover {
+  background: var(--mist);
+}
+
+.sign-row .mini {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+}
+
+.sign-row .mini svg {
+  max-width: 44px;
+  max-height: 44px;
+}
+
+.sign-row strong {
+  display: block;
+  font-size: 17px;
+}
+
+.sign-row small {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.sign-row .learned {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sea-dark);
+}
+
+/* Practice */
+.lesson-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lesson-title {
+  flex: 1;
+  text-align: center;
+}
+
+.lesson-title h2 {
+  font-size: 33px;
+}
+
+.lesson-title p {
+  margin: 2px 0 0;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+.params {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.param {
+  position: relative;
+  margin: 0;
+  padding: 10px 10px 14px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.param .art {
+  display: grid;
+  place-items: center;
+  height: 104px;
+}
+
+.param .art svg {
+  max-width: 100%;
+  max-height: 100%;
+  height: 100px;
+}
+
+.param figcaption {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.param strong {
+  display: block;
+  font-size: 15px;
+}
+
+.param .how {
+  display: block;
+  color: var(--ink-soft);
+}
+
+/* A part you got right lights up in caption yellow. */
+.param.lit {
+  border-color: var(--ink);
+  background: var(--hand);
+}
+
+.param.lit .how {
+  color: var(--ink);
+}
+
+.params.success .param {
+  border-color: var(--ink);
+  background: var(--hand);
+}
+
+.meter {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 6px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--mist);
+  overflow: hidden;
+}
+
+.meter span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--ink);
+}
+
+.param.lit .meter {
+  visibility: hidden;
+}
+
+.hint {
+  min-height: 2.8em;
+  margin: 16px 0 8px;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.reps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reps .dot {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+}
+
+.reps .dot.on {
+  background: var(--hand);
+}
+
+.reps-text {
+  margin-left: 6px;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+.picker-title {
+  margin-top: 24px;
+  font-size: 17px;
+}
+
+.picker-title span {
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.chip {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--ink);
+}
+
+.chip[aria-current='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+
+.chip .check {
+  margin-left: 6px;
+  color: var(--sea);
+}
+
+.chip[aria-current='true'] .check {
+  color: var(--hand);
+}
+
+/* ---- About ---------------------------------------------------------------- */
+
+.about {
+  width: min(620px, calc(100% - 32px));
+  max-height: calc(100dvh - 48px);
+  padding: 28px;
+  border: 0;
+  border-radius: var(--radius-big);
+  color: var(--ink);
+  background: var(--card);
+}
+
+.about::backdrop {
+  background: rgba(12, 52, 64, 0.55);
+}
+
+.about h2 {
+  font-size: 27px;
+  margin-bottom: 8px;
+}
+
+.about h3 {
+  margin-top: 18px;
+  font-size: 17px;
+}
+
+.about p {
+  margin: 6px 0 0;
+}
+
+.about .close {
+  float: right;
+  margin: -8px -8px 0 12px;
+}
+
+/* ---- Debug numbers (open the app with ?debug) ------------------------------- */
+
+.debug {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Phones and small screens ----------------------------------------------- */
+
+@media (max-width: 900px) {
+  .stage {
+    grid-template-columns: 1fr;
+    padding: 0 16px 32px;
+  }
+
+  .mirror-col {
+    position: static;
+  }
+
+  .mirror {
+    width: min(100%, calc(52dvh * (var(--ratio))));
+  }
+}
+
+@media (max-width: 560px) {
+  .bar {
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .modes {
+    order: 3;
+    width: 100%;
+  }
+
+  .mode {
+    flex: 1;
+  }
+
+  .link-btn#aboutBtn {
+    margin-left: auto;
+  }
+
+  .panel {
+    padding: 18px 16px;
+  }
+
+  /* Before the camera is on, the box grows to fit the text instead of staying 4:3. */
+  .mirror.off {
+    aspect-ratio: auto;
+    width: 100%;
+  }
+
+  .mirror.off .gate {
+    position: relative;
+  }
+
+  .gate {
+    padding: 22px 18px 92px;
+  }
+
+  .gate p {
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+
+  .gate .fine {
+    display: none;
+  }
+
+  .params {
+    gap: 6px;
+  }
+
+  .param {
+    padding: 8px 6px 12px;
+  }
+
+  .param .art {
+    height: 76px;
+  }
+
+  .param .art svg {
+    height: 72px;
+  }
+
+  .param figcaption,
+  .param strong {
+    font-size: 14px;
+  }
+
+  .caption {
+    padding: 10px 16px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

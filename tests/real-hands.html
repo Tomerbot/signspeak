@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real hands check</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 16px; color: #0C3440; background: #E6F0EE; }
+  table { border-collapse: collapse; background: #fff; }
+  td, th { border: 1px solid #BFD3CF; padding: 4px 8px; text-align: left; font-size: 14px; }
+  .ok { color: #0F7F74; font-weight: 700; }
+  .bad { color: #B42318; font-weight: 700; }
+</style>
+</head>
+<body>
+<h1>Real hands check</h1>
+<p>Runs MediaPipe on photos of ASL alphabet letters (dataset: Marxulia/asl_sign_languages_alphabets_v03 on
+Hugging Face) and checks that SignSpeak's handshape rules agree. Several letters use the same handshapes as
+SignSpeak's signs: A, S and E are closed hands (a fist), B is a flat hand, O is close to a flat O, U and V are two fingers.
+Y, L, W, I and C must not be mistaken for any of SignSpeak's handshapes.</p>
+<p id="status">Loading models…</p>
+<table id="table"></table>
+<script type="module">
+  import { loadModels, detect } from '../js/vision.js';
+  import { handFeatures } from '../js/features.js';
+  import { scoreAllShapes, bestShape } from '../js/handshapes.js';
+
+  const DATASET = 'Marxulia/asl_sign_languages_alphabets_v03';
+  const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const ALL = { A: 'FIST', S: 'FIST', B: 'B', O: 'FLAT_O', U: 'TWO', V: 'TWO', Y: null, L: null, W: null, I: null, C: null, E: 'FIST' };
+  const only = new URLSearchParams(location.search).get('letters');
+  const WANT = only ? Object.fromEntries([...only].map((l) => [l, ALL[l] ?? null])) : ALL;
+  const params = new URLSearchParams(location.search);
+  const perLetter = Number(params.get('n') || 30);
+  const status = document.getElementById('status');
+
+  const models = await loadModels('IMAGE');
+  status.textContent = `Models loaded (${models.delegate}). Fetching photos…`;
+
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  const results = {};
+  window.results = results;
+  for (const letter of Object.keys(WANT)) {
+    const label = LETTERS.indexOf(letter);
+    const url = `https://datasets-server.huggingface.co/rows?dataset=${DATASET}&config=default&split=train&offset=${label * 419 + 60}&length=${perLetter + 20}`;
+    const rows = (await (await fetch(url)).json()).rows.filter((r) => r.row.label === label).slice(0, perLetter);
+    const r = { want: WANT[letter], total: rows.length, found: 0, counts: {}, samples: [] };
+    results[letter] = r;
+    for (const row of rows) {
+      try {
+        const img = await loadImage(row.row.image.src);
+        const { hand } = detect(models, img, img.naturalWidth, img.naturalHeight);
+        if (!hand) continue;
+        r.found++;
+        const f = handFeatures(hand.world);
+        const scores = scoreAllShapes(f);
+        const best = bestShape(scores);
+        r.counts[best] = (r.counts[best] || 0) + 1;
+        r.samples.push({
+          best,
+          curl: Object.values(f.fingers).map((x) => Math.round(x.curl)),
+          tipToThumb: Object.values(f.fingers).map((x) => +x.tipToThumb.toFixed(2)),
+          reach: Object.values(f.fingers).map((x) => +x.reach.toFixed(2)),
+          spread: +f.spread.toFixed(2),
+          thumbOut: +f.thumbOut.toFixed(2),
+          snapGap: +f.snapGap.toFixed(2),
+          top: Object.entries(scores).sort((a, b) => b[1].score - a[1].score).slice(0, 2).map(([k, v]) => `${k} ${v.score.toFixed(2)} ${v.hint}`),
+        });
+      } catch (e) {
+        console.warn(letter, e);
+      }
+    }
+    render();
+  }
+  status.textContent = 'Done.';
+  window.done = true;
+
+  function render() {
+    const rows = Object.entries(results).map(([letter, r]) => {
+      const right = r.counts[r.want] || 0;
+      const rate = r.found ? right / r.found : 0;
+      const good = r.want === null ? (r.counts.null || 0) / (r.found || 1) >= 0.8 : rate >= 0.6;
+      const counts = Object.entries(r.counts).map(([k, v]) => `${k}: ${v}`).join(', ');
+      return `<tr><td>${letter}</td><td>${r.want}</td><td>${r.found}/${r.total}</td><td class="${good ? 'ok' : 'bad'}">${counts}</td></tr>`;
+    });
+    document.getElementById('table').innerHTML = `<tr><th>Letter</th><th>Should be</th><th>Hand found</th><th>SignSpeak saw</th></tr>${rows.join('')}`;
+  }
+</script>
+</body>
+</html>
